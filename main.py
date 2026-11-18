@@ -1,10 +1,10 @@
-
 from jogo import Jogo
-
 
 def main():
 
     jogo = Jogo()
+
+    jogo.executar()
 
 
 if __name__ == "__main__":
