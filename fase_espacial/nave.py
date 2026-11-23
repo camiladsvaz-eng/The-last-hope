@@ -3,7 +3,7 @@ import pygame
 
 class Nave:
     def __init__(self, x, y):
-        self.retangulo = pygame.Rect(x, y, 70, 70)
+        self.rect = pygame.Rect(x, y, 70, 70)
         self.velocidade = 5
         self.imagem = pygame.image.load("fase_espacial/imagens/nave_teste.png").convert_alpha()
         self.imagem = pygame.transform.scale(self.imagem, (100, 100))
