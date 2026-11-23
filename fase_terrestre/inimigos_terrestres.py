@@ -10,7 +10,7 @@ class InimigoTerrestre:
         self.velocidade = velocidade
         self.vida = vida
 
-        self.retangulo = pygame.Rect(
+        self.rect = pygame.Rect(
             self.x, self.y, self.largura, self.altura
         )
 
@@ -28,11 +28,11 @@ class InimigoTerrestre:
             self.x = 0
             self.velocidade = abs(self.velocidade)
 
-        self.retangulo.x = self.x
+        self.rect.x = self.x
 
     def desenhar(self, tela):
         if self.esta_vivo():
-            pygame.draw.rect(tela, (255, 0, 0), self.retangulo)
+            pygame.draw.rect(tela, (255, 0, 0), self.rect)
 
     def receber_dano(self, dano):
         self.vida -= dano

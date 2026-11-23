@@ -2,7 +2,7 @@ import pygame
 
 
 from fase_espacial.nave import Nave
-from coletaveis.cristal import Cristal
+from coletaveis.coletaveis import Cristal
 
 class Jogo:
 

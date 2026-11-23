@@ -1,9 +1,8 @@
 import random
 import pygame
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, PRETO, VERMELHO, BRANCO
-from classes.coletaveis import Cristal, PecaTecnologica, Sobrevivente
-from classes.gerenciador_coletas import GerenciadorColetas
-
+from coletaveis.coletaveis import Cristal, PecaTecnologica, Sobrevivente
+from coletaveis.gerenciador_coletas import GerenciadorColetas
 
 class JogadorProvisorio:
     """Representa temporariamente a Nave (espaço) ou o Personagem (planeta)."""
