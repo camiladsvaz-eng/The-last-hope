@@ -9,20 +9,20 @@ class Nave:
         self.imagem = pygame.transform.scale(self.imagem, (100, 100))
 
     def mover(self, teclas, largura, altura):
-        if teclas[pygame.K_LEFT] and self.retangulo.left > 0:
-            self.retangulo.x -= self.velocidade
+        if teclas[pygame.K_LEFT] and self.rect.left > 0:
+            self.rect.x -= self.velocidade
 
-        if teclas[pygame.K_RIGHT] and self.retangulo.right < largura:
-            self.retangulo.x += self.velocidade
+        if teclas[pygame.K_RIGHT] and self.rect.right < largura:
+            self.rect.x += self.velocidade
 
-        if teclas[pygame.K_UP] and self.retangulo.top > 0:
-            self.retangulo.y -= self.velocidade
+        if teclas[pygame.K_UP] and self.rect.top > 0:
+            self.rect.y -= self.velocidade
 
-        if teclas[pygame.K_DOWN] and self.retangulo.bottom < altura:
-            self.retangulo.y += self.velocidade
+        if teclas[pygame.K_DOWN] and self.rect.bottom < altura:
+            self.rect.y += self.velocidade
 
-        self.retangulo.clamp_ip(pygame.Rect(0, 0, largura, altura))
+        self.rect.clamp_ip(pygame.Rect(0, 0, largura, altura))
 
     def desenhar(self, tela):
-        posicao = self.imagem.get_rect(center=self.retangulo.center)
+        posicao = self.imagem.get_rect(center=self.rect.center)
         tela.blit(self.imagem, posicao)
