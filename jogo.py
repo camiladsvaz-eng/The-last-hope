@@ -2,6 +2,7 @@ import pygame
 
 
 from fase_espacial.nave import Nave
+from fase_terrestre.fase_terrestre import FaseTerrestre
 # from coletaveis.cristal import Cristal
 
 class Jogo:
@@ -10,55 +11,117 @@ class Jogo:
 
         pygame.init()
 
-   
         self.largura = 800
         self.altura = 600
 
-        self.tela = pygame.display.set_mode((self.largura, self.altura))
+        self.tela = pygame.display.set_mode(
+            (self.largura, self.altura)
+        )
 
         pygame.display.set_caption("THE LAST HOPE")
 
         self.relogio = pygame.time.Clock()
         self.fps = 60
 
-      
         self.rodando = True
 
-    
-        self.nave = Nave(375, 500)
-        # self.cristal = Cristal(200, 200)
+        # Controle das fases
+        self.fase_atual = "espacial"
 
+        # Fase espacial
+        self.nave = Nave(375, 500)
+
+        # Cronômetro da fase espacial
+        self.tempo_fase = 10
+        self.inicio_fase = pygame.time.get_ticks()
+
+        # Fase terrestre (será criada na transição)
+        self.fase_terrestre = None
+    
     def processar_eventos(self):
 
         for evento in pygame.event.get():
 
             if evento.type == pygame.QUIT:
                 self.rodando = False
+
             elif evento.type == pygame.KEYDOWN:
+
                 if evento.key == pygame.K_ESCAPE:
-                    self.rodando = False 
+                    self.rodando = False
+
+            if self.fase_atual == "terrestre":
+                self.fase_terrestre.tratar_eventos(evento)
                 
+    def mudar_fase(self):
+
+        if self.fase_atual == "espacial":
+
+            print("Iniciando fase terrestre!")
+
+            self.fase_atual = "terrestre"
+
+            self.fase_terrestre = FaseTerrestre(
+                self.largura,
+                self.altura
+            )
 
     def atualizar(self):
 
-        teclas = pygame.key.get_pressed()
+        if self.fase_atual == "espacial":
 
-        self.nave.mover(teclas,self.largura,self.altura)
+            teclas = pygame.key.get_pressed()
 
-        #if not self.cristal.coletado:
-            #if self.nave.retangulo.colliderect(self.cristal.retangulo):
-                #print("Cristal coletado!")
-                #self.cristal.coletado = True 
+            self.nave.mover(
+                teclas,
+                self.largura,
+                self.altura
+            )
+
+            tempo_decorrido = (
+                pygame.time.get_ticks() - self.inicio_fase
+            ) // 1000
+
+            tempo_restante = self.tempo_fase - tempo_decorrido
+
+            if tempo_restante <= 0:
+                self.mudar_fase()
+
+        elif self.fase_atual == "terrestre":
+
+            self.fase_terrestre.atualizar()
 
     def desenhar(self):
 
-        self.tela.fill((10, 10, 30))
-        self.nave.desenhar(self.tela)
-        #self.cristal.desenhar(self.tela)
+        if self.fase_atual == "espacial":
 
+            self.tela.fill((10, 10, 30))
+            self.nave.desenhar(self.tela)
+
+            tempo_decorrido = (
+                pygame.time.get_ticks() - self.inicio_fase
+            ) // 1000
+
+            tempo_restante = max(
+                0,
+                self.tempo_fase - tempo_decorrido
+            )
+
+            fonte = pygame.font.Font(None, 36)
+
+            texto = fonte.render(
+                f"Tempo: {tempo_restante}s",
+                True,
+                (255, 255, 255)
+            )
+
+            self.tela.blit(texto, (20, 20))
+
+        elif self.fase_atual == "terrestre":
+
+            self.fase_terrestre.desenhar(self.tela)
 
         pygame.display.flip()
-
 
     def executar(self):
 
@@ -73,3 +136,17 @@ class Jogo:
             self.relogio.tick(self.fps)
 
         pygame.quit()
+
+    def verificar_tempo(self):
+
+        tempo_atual = pygame.time.get_ticks()
+
+        tempo_decorrido = (tempo_atual - self.inicio_fase) // 1000
+
+        tempo_restante = self.tempo_fase - tempo_decorrido
+
+        if tempo_restante <= 0:
+            print("Tempo esgotado! Próxima fase...")
+            self.rodando = False
+
+        return tempo_restante
