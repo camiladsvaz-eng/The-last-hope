@@ -1,9 +1,14 @@
+
 import pygame
+import random
 
-
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS
 from fase_espacial.nave import Nave
 from fase_terrestre.fase_terrestre import FaseTerrestre
-# from coletaveis.cristal import Cristal
+
+from sistema_coleta.coletaveis import Cristal, PecaTecnologica
+from sistema_coleta.gerenciador_coletas import GerenciadorColetas
+
 
 class Jogo:
 
@@ -11,8 +16,8 @@ class Jogo:
 
         pygame.init()
 
-        self.largura = 800
-        self.altura = 600
+        self.largura = SCREEN_WIDTH
+        self.altura = SCREEN_HEIGHT
 
         self.tela = pygame.display.set_mode(
             (self.largura, self.altura)
@@ -21,7 +26,7 @@ class Jogo:
         pygame.display.set_caption("THE LAST HOPE")
 
         self.relogio = pygame.time.Clock()
-        self.fps = 60
+        self.fps = FPS
 
         self.rodando = True
 
@@ -35,9 +40,47 @@ class Jogo:
         self.tempo_fase = 10
         self.inicio_fase = pygame.time.get_ticks()
 
-        # Fase terrestre (será criada na transição)
+        # Sistema de coleta
+        self.gerenciador_coletas = GerenciadorColetas(
+            fase_inicial="espaco",
+            altura_tela=self.altura
+        )
+
+        self.iniciar_coletas_espaciais()
+
+        # Fase terrestre
         self.fase_terrestre = None
-    
+
+    def iniciar_coletas_espaciais(self):
+
+        # Adiciona três cristais
+        for _ in range(3):
+
+            x = random.randint(60, self.largura - 60)
+            y = random.randint(-120, 120)
+
+            cristal = Cristal(
+                x,
+                y,
+                velocidade_y=2
+            )
+
+            self.gerenciador_coletas.adicionar_coletavel(cristal)
+
+        # Adiciona duas peças tecnológicas
+        for _ in range(2):
+
+            x = random.randint(60, self.largura - 60)
+            y = random.randint(-120, 120)
+
+            peca = PecaTecnologica(
+                x,
+                y,
+                velocidade_y=2
+            )
+
+            self.gerenciador_coletas.adicionar_coletavel(peca)
+
     def processar_eventos(self):
 
         for evento in pygame.event.get():
@@ -52,7 +95,7 @@ class Jogo:
 
             if self.fase_atual == "terrestre":
                 self.fase_terrestre.tratar_eventos(evento)
-                
+
     def mudar_fase(self):
 
         if self.fase_atual == "espacial":
@@ -60,6 +103,9 @@ class Jogo:
             print("Iniciando fase terrestre!")
 
             self.fase_atual = "terrestre"
+
+            # Limpa os coletáveis espaciais
+            self.gerenciador_coletas.definir_fase("terrestre")
 
             self.fase_terrestre = FaseTerrestre(
                 self.largura,
@@ -77,6 +123,9 @@ class Jogo:
                 self.largura,
                 self.altura
             )
+
+            # Atualiza os coletáveis e verifica colisões com a nave
+            self.gerenciador_coletas.atualizar(self.nave)
 
             tempo_decorrido = (
                 pygame.time.get_ticks() - self.inicio_fase
@@ -96,6 +145,11 @@ class Jogo:
         if self.fase_atual == "espacial":
 
             self.tela.fill((10, 10, 30))
+
+            # Desenha coletáveis e painel de contagem
+            self.gerenciador_coletas.desenhar(self.tela)
+
+            # Desenha a nave
             self.nave.desenhar(self.tela)
 
             tempo_decorrido = (
@@ -115,7 +169,10 @@ class Jogo:
                 (255, 255, 255)
             )
 
-            self.tela.blit(texto, (20, 20))
+            # Cronômetro no canto superior direito
+            posicao_x = self.largura - texto.get_width() - 20
+
+            self.tela.blit(texto, (posicao_x, 20))
 
         elif self.fase_atual == "terrestre":
 
@@ -141,7 +198,9 @@ class Jogo:
 
         tempo_atual = pygame.time.get_ticks()
 
-        tempo_decorrido = (tempo_atual - self.inicio_fase) // 1000
+        tempo_decorrido = (
+            tempo_atual - self.inicio_fase
+        ) // 1000
 
         tempo_restante = self.tempo_fase - tempo_decorrido
 
