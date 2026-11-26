@@ -109,7 +109,8 @@ class Jogo:
 
             self.fase_terrestre = FaseTerrestre(
                 self.largura,
-                self.altura
+                self.altura,
+                self.gerenciador_coletas
             )
 
     def atualizar(self):
